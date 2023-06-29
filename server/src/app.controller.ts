@@ -19,7 +19,13 @@ export class AppController {
 
   @Post('upload')
   @UseInterceptors(FileInterceptor('file'))
-  async upload(@UploadedFile() file: any) {
-    return 'ok';
+  async upload(@UploadedFile() file: Express.Multer.File) {
+    const [header, ...lines] = file.buffer
+      .toString()
+      .split(/\r*\n/)
+      .filter(Boolean);
+    return {
+      message: 'File uploaded successfully',
+    };
   }
 }
