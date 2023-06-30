@@ -45,7 +45,7 @@ export default function Home() {
     <main className="w-screen h-screen flex flex-col justify-center items-center">
       <form
         onSubmit={handleSubmit}
-        className="w-[50%] bg-slate-50 rounded-md border-gray-500 border-solid border p-4 m-auto"
+        className="w-1/2 h-fit flex justify-between bg-slate-50 rounded-md border-gray-500 border-solid border p-4 mb-4"
       >
         <input
           type="file"
@@ -60,6 +60,12 @@ export default function Home() {
           Enviar
         </button>
       </form>
+      <div className="w-1/2 bg-slate-50 rounded-md border-gray-500 border-solid border p-4">
+        <h1 className="border-b border-gray-500">Eventos</h1>
+        {data.map((d) => {
+          return <p className="my-2 text-sm text-gray-500">{d}</p>;
+        })}
+      </div>
     </main>
   );
 }
