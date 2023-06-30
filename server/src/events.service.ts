@@ -1,8 +1,10 @@
 import { Injectable } from '@nestjs/common';
 import { Response } from 'express';
 
+type EventType = 'notification' | 'data' | 'progress';
+
 @Injectable()
-export class NotificationsService {
+export class EventsService {
   clients: Map<string, any>;
 
   constructor() {
@@ -11,6 +13,7 @@ export class NotificationsService {
 
   addClient(id: string, res: Response) {
     this.clients.set(id, res);
+    console.log(`Client ${id} connected`);
     res.writeHead(200, {
       'Content-Type': 'text/event-stream',
       Connection: 'keep-alive',
@@ -18,12 +21,15 @@ export class NotificationsService {
       'X-Accel-Buffering': 'no',
       'Access-Control-Allow-Origin': '*',
     });
-    return res.write(`data: All right! 👋, Connection successfully \n\n`);
+    res.write(`event: notification\ndata: ✅ Success,Client connected \n\n`);
+    return;
   }
 
-  sendMessage(id: string, title: string, message: string) {
+  sendMessage(id: string, type: EventType, message: string) {
     const res = this.clients.get(id);
-    res.write(`data: ${title},${message} \n\n`);
+    if (res) {
+      res.write(`event: ${type}\ndata: ${message} \n\n`);
+    }
   }
 
   removeClient(id: string) {

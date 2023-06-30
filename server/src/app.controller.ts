@@ -8,18 +8,18 @@ import {
   UploadedFile,
   UseInterceptors,
 } from '@nestjs/common';
-import { AppService } from './app.service';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { Request, Response } from 'express';
-import { NotificationsService } from './notifications.service';
 import { faker } from '@faker-js/faker';
 import * as fs from 'node:fs';
+import { AppService } from './app.service';
+import { EventsService } from './events.service';
 
 @Controller()
 export class AppController {
   constructor(
     private readonly appService: AppService,
-    private notificationsService: NotificationsService,
+    private readonly events: EventsService,
   ) {}
 
   @Get()
@@ -27,40 +27,40 @@ export class AppController {
     return this.appService.getHello();
   }
 
-  @Get('sse/:id')
-  sse(@Param('id') id: string, @Req() req: Request, @Res() res: Response) {
-    req.on('close', () => {
-      this.appService.removeClient(id);
-    });
-
-    return this.appService.addClient(id, res);
-  }
-
-  @Get('notifications/:id')
-  notifications(
-    @Param('id') id: string,
+  @Get('sse/:client')
+  sse(
+    @Param('client') client: string,
     @Req() req: Request,
     @Res() res: Response,
   ) {
     req.on('close', () => {
-      this.notificationsService.removeClient(id);
+      this.events.removeClient(client);
     });
 
-    return this.notificationsService.addClient(id, res);
+    return this.events.addClient(client, res);
   }
 
-  @Post('upload')
+  @Post('upload/:client')
   @UseInterceptors(FileInterceptor('file'))
-  async upload(@UploadedFile() file: Express.Multer.File) {
+  async upload(
+    @Param('client') client: string,
+    @UploadedFile() file: Express.Multer.File,
+  ) {
     const lines = file.buffer.toString().split(/\r*\n/).filter(Boolean);
-    for (const line of lines) {
-      this.appService.sendMessage('1', line);
+    for (let i = 0; i < lines.length; i++) {
+      this.events.sendMessage(
+        client,
+        'progress',
+        parseInt(`${(i * 100) / lines.length}`).toString(),
+      );
+      this.events.sendMessage(client, 'data', lines[i]);
       await new Promise((resolve) => setTimeout(resolve, 50));
     }
-    this.notificationsService.sendMessage(
-      '1',
-      '✅ Success',
-      'File uploaded successfully',
+    this.events.sendMessage(client, 'progress', '100');
+    this.events.sendMessage(
+      client,
+      'notification',
+      '✅ Success,File uploaded successfully',
     );
     return {
       message: 'File uploaded successfully',
