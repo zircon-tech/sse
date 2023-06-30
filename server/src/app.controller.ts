@@ -11,10 +11,14 @@ import {
 import { AppService } from './app.service';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { Request, Response } from 'express';
+import { NotificationsService } from './notifications.service';
 
 @Controller()
 export class AppController {
-  constructor(private readonly appService: AppService) {}
+  constructor(
+    private readonly appService: AppService,
+    private notificationsService: NotificationsService,
+  ) {}
 
   @Get()
   getHello(): string {
@@ -28,6 +32,19 @@ export class AppController {
     });
 
     return this.appService.addClient(id, res);
+  }
+
+  @Get('notifications/:id')
+  notifications(
+    @Param('id') id: string,
+    @Req() req: Request,
+    @Res() res: Response,
+  ) {
+    req.on('close', () => {
+      this.notificationsService.removeClient(id);
+    });
+
+    return this.notificationsService.addClient(id, res);
   }
 
   @Post('upload')
