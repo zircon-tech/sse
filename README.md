@@ -26,6 +26,18 @@ The following table describes the API endpoints provided by the server:
 | `/upload/:client` | POST   | Uploads a file and sends its contents as SSE events to a specific client. |
 | `/csv`            | GET    | Generates a CSV file containing mock data.                                |
 
+## Useful
+
+[Polyfill](https://github.com/Yaffle/EventSource/#custom-headers) to allow custom headers.
+
+```js
+new EventSourcePolyfill('/events', {
+  headers: {
+    'X-Custom-Header': 'value'
+  }
+});
+```
+
 ### Pd
 
 yup, chat-gpt wrote this.
