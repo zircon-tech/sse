@@ -67,7 +67,14 @@ export default function Home() {
 
   return (
     <main className="w-screen h-screen flex flex-col justify-center items-center">
-      <FileForm clientId={clientId} progress={progress} />
+      <FileForm
+        clientId={clientId}
+        progress={progress}
+        onClear={() => {
+          setData([]);
+          setProgress(0);
+        }}
+      />
       {rows.length ? (
         <DataTable columns={columns} data={rows} />
       ) : (

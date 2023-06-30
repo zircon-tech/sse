@@ -9,9 +9,11 @@ import { Progress } from "./ui/progress";
 export default function FileForm({
   clientId,
   progress,
+  onClear,
 }: {
   clientId: string;
   progress: number;
+  onClear: () => void;
 }) {
   const [file, setFile] = useState<File | undefined>(undefined);
   const [loading, setLoading] = useState<boolean>(false);
@@ -45,7 +47,7 @@ export default function FileForm({
       )}
     >
       <div>
-        <Label htmlFor="file">CSV</Label>
+        <Label htmlFor="file">CSV here 👇</Label>
         <Input
           id="file"
           type="file"
@@ -56,13 +58,25 @@ export default function FileForm({
           )}
         />
       </div>
-      <Button
-        variant="outline"
-        onClick={() => handleSubmit()}
-        disabled={loading}
-      >
-        Enviar
-      </Button>
+      <div>
+        {progress === 100 ? (
+          <Button
+            variant="destructive"
+            onClick={onClear}
+            disabled={loading}
+            className="mr-2"
+          >
+            Clear
+          </Button>
+        ) : undefined}
+        <Button
+          variant="outline"
+          onClick={() => handleSubmit()}
+          disabled={loading || !Boolean(file)}
+        >
+          Send
+        </Button>
+      </div>
       <Progress value={progress} className="h-2 mt-2" />
     </div>
   );
