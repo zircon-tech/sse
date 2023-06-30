@@ -27,16 +27,22 @@ export class AppController {
     return this.appService.getHello();
   }
 
+  /**
+   * Establishes a Server-Sent Events (SSE) connection with a specific client.
+   * @param {string} client - The unique identifier of the client.
+   * @param {Request} req - The request object representing the client's request.
+   * @param {Response} res - The response object representing the server's response.
+   * @returns {void}
+   */
   @Get('sse/:client')
   sse(
     @Param('client') client: string,
     @Req() req: Request,
     @Res() res: Response,
   ) {
-    req.on('close', () => {
-      this.events.removeClient(client);
-    });
-
+    // Set up an event listener for the 'close' event on the request
+    req.on('close', () => this.events.removeClient(client));
+    // Add the client to the server's list of connected clients and establish the SSE connection
     return this.events.addClient(client, res);
   }
 

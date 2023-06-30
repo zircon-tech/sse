@@ -13,9 +13,11 @@ export default function Home() {
   const { toast } = useToast();
 
   useEffect(() => {
+    // Establishes a Server-Sent Events (SSE) connection with the server and handles SSE events.
     const api = `http://localhost:3001/sse/${clientId}`;
     const es = new EventSource(api);
 
+    // Handle 'notification' event
     es.addEventListener("notification", (e) => {
       const [title, description] = e.data.split(",");
       toast({
@@ -27,15 +29,18 @@ export default function Home() {
       });
     });
 
+    // Handle 'data' event
     es.addEventListener("data", (e) => {
       setData((prev) => [...prev, e.data]);
     });
 
+    // Handle 'progress' event
     es.addEventListener("progress", (e) => {
       setProgress(parseInt(e.data));
     });
 
-    es.onerror = (e) => {
+    // Handle SSE connection errors
+    es.onerror = (_) => {
       toast({
         title: "❌ Error",
         description: "Connection closed",
@@ -43,6 +48,7 @@ export default function Home() {
         duration: 3_000,
         className: "bg-red-50",
       });
+      // Close the SSE connection
       es.close();
     };
   }, []);
