@@ -16,14 +16,13 @@ export class AppService {
   addClient(id: string, res: Response) {
     this.clients.set(id, res);
     console.log(`Client ${id} connected`);
-    res.writeHead(200, {
+    return res.writeHead(200, {
       'Content-Type': 'text/event-stream',
       Connection: 'keep-alive',
       'Cache-Control': 'no-cache',
       'X-Accel-Buffering': 'no',
       'Access-Control-Allow-Origin': '*',
     });
-    res.write(`data: [${id}] Connection successfully \n\n`);
   }
 
   removeClient(id: string) {

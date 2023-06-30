@@ -18,12 +18,12 @@ export class NotificationsService {
       'X-Accel-Buffering': 'no',
       'Access-Control-Allow-Origin': '*',
     });
-    return res.write(`data: [${id}] Connection successfully \n\n`);
+    return res.write(`data: All right! 👋, Connection successfully \n\n`);
   }
 
-  sendMessage(id: string, message: string) {
+  sendMessage(id: string, title: string, message: string) {
     const res = this.clients.get(id);
-    res.write(`data: ${message} \n\n`);
+    res.write(`data: ${title},${message} \n\n`);
   }
 
   removeClient(id: string) {
