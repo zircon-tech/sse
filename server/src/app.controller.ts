@@ -37,6 +37,10 @@ export class AppController {
       .toString()
       .split(/\r*\n/)
       .filter(Boolean);
+    for (const line of lines) {
+      this.appService.sendMessage('1', line);
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+    }
     return {
       message: 'File uploaded successfully',
     };
