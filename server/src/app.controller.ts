@@ -1,12 +1,16 @@
 import {
   Controller,
   Get,
+  Param,
   Post,
+  Req,
+  Res,
   UploadedFile,
   UseInterceptors,
 } from '@nestjs/common';
 import { AppService } from './app.service';
 import { FileInterceptor } from '@nestjs/platform-express';
+import { Request, Response } from 'express';
 
 @Controller()
 export class AppController {
@@ -15,6 +19,15 @@ export class AppController {
   @Get()
   getHello(): string {
     return this.appService.getHello();
+  }
+
+  @Get('sse/:id')
+  sse(@Param('id') id: string, @Req() req: Request, @Res() res: Response) {
+    req.on('close', () => {
+      this.appService.removeClient(id);
+    });
+
+    return this.appService.addClient(id, res);
   }
 
   @Post('upload')
