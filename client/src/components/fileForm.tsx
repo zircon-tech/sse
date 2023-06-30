@@ -4,9 +4,17 @@ import { Label } from "./ui/label";
 import { Input } from "./ui/input";
 import { cn } from "@/lib/utils";
 import { Button } from "./ui/button";
+import { Progress } from "./ui/progress";
 
-export default function FileForm({ clientId }: { clientId: string }) {
+export default function FileForm({
+  clientId,
+  progress,
+}: {
+  clientId: string;
+  progress: number;
+}) {
   const [file, setFile] = useState<File | undefined>(undefined);
+  const [loading, setLoading] = useState<boolean>(false);
 
   const loadFile = ({ target }: any) => {
     const [currentFile] = target.files;
@@ -15,6 +23,7 @@ export default function FileForm({ clientId }: { clientId: string }) {
 
   const handleSubmit = async () => {
     if (!file) return;
+    setLoading(true);
 
     const formData = new FormData();
     formData.append("file", file, file.name);
@@ -25,6 +34,7 @@ export default function FileForm({ clientId }: { clientId: string }) {
         body: formData,
       });
     } catch {}
+    setLoading(false);
   };
 
   return (
@@ -46,9 +56,14 @@ export default function FileForm({ clientId }: { clientId: string }) {
           )}
         />
       </div>
-      <Button variant="outline" onClick={() => handleSubmit()} className="">
+      <Button
+        variant="outline"
+        onClick={() => handleSubmit()}
+        disabled={loading}
+      >
         Enviar
       </Button>
+      <Progress value={progress} className="h-2 mt-2" />
     </div>
   );
 }

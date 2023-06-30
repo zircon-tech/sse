@@ -2,25 +2,49 @@
 import DataTable, { DataTableColumn } from "@/components/dataTable";
 import FileForm from "@/components/fileForm";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { useState, useEffect } from "react";
+import { useToast } from "@/components/ui/use-toast";
+import { useEffect, useState } from "react";
 import { v4 as uuid } from "uuid";
 
 export default function Home() {
-  const [clientId, setClientId] = useState<string>(uuid());
+  const [clientId, _] = useState<string>(uuid());
   const [data, setData] = useState<string[]>([]);
+  const [progress, setProgress] = useState<number>(0);
+  const { toast } = useToast();
 
   useEffect(() => {
-    const connect = async () => {
-      const sse = new EventSource(`http://localhost:3001/sse/${clientId}`);
-      sse.onmessage = (e) => {
-        setData((prev) => [...prev, e.data]);
-      };
-      sse.onerror = (e) => {
-        console.log(e);
-        sse.close();
-      };
+    const api = `http://localhost:3001/sse/${clientId}`;
+    const es = new EventSource(api);
+
+    es.addEventListener("notification", (e) => {
+      const [title, description] = e.data.split(",");
+      toast({
+        title,
+        description,
+        variant: "default",
+        duration: 3_000,
+        className: "bg-green-50",
+      });
+    });
+
+    es.addEventListener("data", (e) => {
+      setData((prev) => [...prev, e.data]);
+    });
+
+    es.addEventListener("progress", (e) => {
+      setProgress(parseInt(e.data));
+    });
+
+    es.onerror = (e) => {
+      toast({
+        title: "❌ Error",
+        description: "Connection closed",
+        variant: "default",
+        duration: 3_000,
+        className: "bg-red-50",
+      });
+      es.close();
     };
-    connect();
   }, []);
 
   const [header, ...lines] = data ?? [];
@@ -37,7 +61,7 @@ export default function Home() {
 
   return (
     <main className="w-screen h-screen flex flex-col justify-center items-center">
-      <FileForm clientId={clientId} />
+      <FileForm clientId={clientId} progress={progress} />
       {rows.length ? (
         <DataTable columns={columns} data={rows} />
       ) : (
