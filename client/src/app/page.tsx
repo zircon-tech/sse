@@ -3,9 +3,10 @@ import DataTable, { DataTableColumn } from "@/components/dataTable";
 import FileForm from "@/components/fileForm";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { useState, useEffect } from "react";
+import { v4 as uuid } from "uuid";
 
 export default function Home() {
-  const [clientId, setClientId] = useState<string>("1");
+  const [clientId, setClientId] = useState<string>(uuid());
   const [data, setData] = useState<string[]>([]);
 
   useEffect(() => {
@@ -36,7 +37,7 @@ export default function Home() {
 
   return (
     <main className="w-screen h-screen flex flex-col justify-center items-center">
-      <FileForm />
+      <FileForm clientId={clientId} />
       {rows.length ? (
         <DataTable columns={columns} data={rows} />
       ) : (

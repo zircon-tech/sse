@@ -5,7 +5,7 @@ import { Input } from "./ui/input";
 import { cn } from "@/lib/utils";
 import { Button } from "./ui/button";
 
-export default function FileForm() {
+export default function FileForm({ clientId }: { clientId: string }) {
   const [file, setFile] = useState<File | undefined>(undefined);
 
   const loadFile = ({ target }: any) => {
@@ -20,7 +20,7 @@ export default function FileForm() {
     formData.append("file", file, file.name);
 
     try {
-      await fetch("http://localhost:3001/upload", {
+      await fetch(`http://localhost:3001/upload/${clientId}`, {
         method: "POST",
         body: formData,
       });
