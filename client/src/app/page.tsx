@@ -1,8 +1,24 @@
 "use client";
-import { FormEvent, useState } from "react";
+import { FormEvent, useState, useEffect } from "react";
 
 export default function Home() {
+  const [clientId, setClientId] = useState<string>("1");
+  const [data, setData] = useState<string[]>([]);
   const [file, setFile] = useState<File | undefined>(undefined);
+
+  useEffect(() => {
+    const connect = async () => {
+      const sse = new EventSource(`http://localhost:3001/sse/${clientId}`);
+      sse.onmessage = (e) => {
+        setData((prev) => [...prev, e.data]);
+      };
+      sse.onerror = (e) => {
+        console.log(e);
+        sse.close();
+      };
+    };
+    connect();
+  }, []);
 
   const loadFile = ({ target }: any) => {
     const [currentFile] = target.files;
@@ -26,10 +42,10 @@ export default function Home() {
   };
 
   return (
-    <main className="w-screen h-screen flex justify-center items-center">
+    <main className="w-screen h-screen flex flex-col justify-center items-center">
       <form
         onSubmit={handleSubmit}
-        className="w-[20%] bg-slate-50 rounded-md border-gray-500 border-solid border p-4 m-auto"
+        className="w-[50%] bg-slate-50 rounded-md border-gray-500 border-solid border p-4 m-auto"
       >
         <input
           type="file"
